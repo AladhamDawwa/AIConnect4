@@ -67,8 +67,9 @@ def getScore(window, piece):
 
     return score
 
+
 def calcHeuristic(board, piece):
-    if winning_move(board, AI_PIECE):   # Win
+    if winning_move(board, AI_PIECE):  # Win
         return math.inf
     elif winning_move(board, PLAYER_PIECE):  # lose
         return -math.inf
@@ -112,6 +113,7 @@ def calcHeuristic(board, piece):
 
     return score
 
+
 def minimax(board, depth, maximizingPlayer):
     valid_locations = get_valid_locations(board)
     is_terminal = is_terminal_node(board)
@@ -139,6 +141,46 @@ def minimax(board, depth, maximizingPlayer):
             if new_score < value:
                 value, column = new_score, col
     return column, value
+
+
+def alphaBetaPruning(board, depth, alpha, beta, maximizingPlayer):
+    valid_locations = get_valid_locations(board)
+    is_terminal = is_terminal_node(board)
+    if depth == 0 or is_terminal:
+        return None, calcHeuristic(board, AI_PIECE)
+    column = random.choice(valid_locations)
+    if maximizingPlayer:
+        value = -math.inf
+        for col in valid_locations:
+            row = get_next_open_row(board, col)
+            b_copy = copy.deepcopy(board)
+            b_copy[row][col] = AI_PIECE
+            new_score = alphaBetaPruning(b_copy, depth - 1, alpha, beta, not maximizingPlayer)[1]
+            if new_score > value:
+                value = new_score
+                column = col
+            alpha = max(alpha, value)
+            if alpha >= beta:
+                break
+
+    else:  # Minimizing player
+        value = math.inf
+        for col in valid_locations:
+            row = get_next_open_row(board, col)
+            b_copy = copy.deepcopy(board)
+            b_copy[row][col] = PLAYER_PIECE
+            new_score = alphaBetaPruning(b_copy, depth - 1, alpha, beta, not maximizingPlayer)[1]
+            if new_score < value:
+                value = new_score
+                column = col
+            beta = min(beta, value)
+            if alpha >= beta:
+                break
+    return column, value
+
+
+def playAlphaBeta(board, depth):
+    return alphaBetaPruning(board, depth, -math.inf, math.inf, True)[0]
 
 
 def playMinimax(board, depth):
