@@ -5,7 +5,7 @@ from AI import playAlphaBeta, playMinimax
 from board import Board
 
 
-def main(difficulty, algorithm):
+def AI(difficulty, algorithm):
 
     board = Board()
     game_end = False
