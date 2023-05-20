@@ -111,3 +111,35 @@ def calcHeuristic(board, piece):
             score += getScore(window, piece)
 
     return score
+
+def minimax(board, depth, maximizingPlayer):
+    valid_locations = get_valid_locations(board)
+    is_terminal = is_terminal_node(board)
+    if depth == 0 or is_terminal:
+        return None, calcHeuristic(board, AI_PIECE)
+    column = random.choice(valid_locations)
+
+    if maximizingPlayer:
+        value = -math.inf
+        for col in valid_locations:
+            row = get_next_open_row(board, col)
+            b_copy = copy.deepcopy(board)
+            b_copy[row][col] = AI_PIECE
+            new_score = minimax(b_copy, depth - 1, False)[1]
+            if new_score > value:
+                value, column = new_score, col
+
+    else:  # Minimizing player
+        value = math.inf
+        for col in valid_locations:
+            row = get_next_open_row(board, col)
+            b_copy = copy.deepcopy(board)
+            b_copy[row][col] = PLAYER_PIECE
+            new_score = minimax(b_copy, depth - 1, True)[1]
+            if new_score < value:
+                value, column = new_score, col
+    return column, value
+
+
+def playMinimax(board, depth):
+    return minimax(board, depth, True)[0]
