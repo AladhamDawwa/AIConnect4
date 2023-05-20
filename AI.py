@@ -66,3 +66,48 @@ def getScore(window, piece):
         score -= 80
 
     return score
+
+def calcHeuristic(board, piece):
+    if winning_move(board, AI_PIECE):   # Win
+        return math.inf
+    elif winning_move(board, PLAYER_PIECE):  # lose
+        return -math.inf
+    elif len(get_valid_locations(board)) == 0:  # Draw
+        return 0
+
+    score = 0
+
+    # Score center column
+    center_array = []
+    for i in range(ROWS):
+        center_array.append(board[i][COLUMNS // 2])
+    center_count = center_array.count(piece)
+    score += center_count * 3
+
+    # Score Horizontal
+    for r in range(ROWS):
+        for c in range(COLUMNS - 3):
+            window = board[r][c:c + 4]
+            score += getScore(window, piece)
+
+    # Score Vertical
+    for c in range(COLUMNS):
+        for r in range(ROWS - 3):
+            window = []
+            for i in range(4):
+                window.append(board[r + i][c])
+            score += getScore(window, piece)
+
+    # Score positive sloped diagonal
+    for r in range(ROWS - 3):
+        for c in range(COLUMNS - 3):
+            window = [board[r + i][c + i] for i in range(4)]
+            score += getScore(window, piece)
+
+    # Score negative sloped diagonal
+    for r in range(ROWS - 3):
+        for c in range(COLUMNS - 3):
+            window = [board[r + 3 - i][c + i] for i in range(4)]
+            score += getScore(window, piece)
+
+    return score
